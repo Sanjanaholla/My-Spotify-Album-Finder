@@ -40,3 +40,62 @@
 .read-the-docs {
   color: #888;
 }
+
+body {
+  background: linear-gradient(135deg, #121212, #181818, #000000);
+  color: white;
+  font-family: "Circular", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+
+.search-box {
+  text-align: center;
+  padding: 20px;
+}
+
+.album-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.album-card {
+  background: #282828;
+  border-radius: 12px;
+  margin: 15px;
+  width: 220px;
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.album-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 0px 20px #1db954;
+}
+
+.album-img {
+  border-radius: 12px 12px 0 0;
+  height: 220px;
+  object-fit: cover;
+}
+
+.album-title {
+  font-size: 16px;
+  font-weight: bold;
+  min-height: 50px;
+}
+
+.album-btn {
+  background-color: #1db954 !important;
+  border: none;
+  font-weight: bold;
+  width: 100%;
+}
+
+.album-btn:hover {
+  background-color: #1ed760 !important;
+}
+
+
