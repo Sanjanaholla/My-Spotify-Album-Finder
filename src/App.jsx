@@ -8,6 +8,7 @@ import {
   Row,
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
+import { Volume2, VolumeX } from "lucide-react"; // for sound icons
 
 const clientId = import.meta.env.VITE_CLIENT_ID;
 const clientSecret = import.meta.env.VITE_CLIENT_SECRET;
@@ -16,14 +17,12 @@ function App() {
   const [searchInput, setSearchInput] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [albums, setAlbums] = useState([]);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true); // default playing
 
   useEffect(() => {
     let authParams = {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body:
         "grant_type=client_credentials&client_id=" +
         clientId +
@@ -36,6 +35,15 @@ function App() {
       .then((data) => {
         setAccessToken(data.access_token);
       });
+
+    // Autoplay music
+    const audio = document.getElementById("bg-music");
+    if (audio) {
+      audio.volume = 0.5; // not too loud
+      audio.play().catch(() => {
+        console.log("Autoplay blocked by browser, user must interact first.");
+      });
+    }
   }, []);
 
   async function search() {
@@ -47,19 +55,15 @@ function App() {
       },
     };
 
-    // Get Artist
     const artistID = await fetch(
       "https://api.spotify.com/v1/search?q=" + searchInput + "&type=artist",
       artistParams
     )
       .then((result) => result.json())
-      .then((data) => {
-        return data.artists.items[0]?.id;
-      });
+      .then((data) => data.artists.items[0]?.id);
 
     if (!artistID) return;
 
-    // Get Artist Albums
     await fetch(
       "https://api.spotify.com/v1/artists/" +
         artistID +
@@ -86,9 +90,31 @@ function App() {
   return (
     <>
       {/* Background Music */}
-      <audio id="bg-music" loop>
+      <audio id="bg-music" loop autoPlay>
         <source src="/SwanLake.mp3" type="audio/mp3" />
       </audio>
+
+      {/* Sound Toggle Icon - bottom right */}
+      <div
+        onClick={toggleMusic}
+        style={{
+          position: "fixed",
+          bottom: "40px",
+          right: "60px",
+          cursor: "pointer",
+          background: "#1DB954",
+          padding: "18px",
+          borderRadius: "50%",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+        }}
+      >
+
+        {isPlaying ? (
+          <Volume2 size={30} color="black" fill="black" />
+        ) : (
+          <VolumeX size={30} color="black" fill="black" />
+        )}
+      </div>
 
       {/* Header with Logo */}
       <Container style={{ textAlign: "center", marginBottom: "30px" }}>
@@ -98,6 +124,7 @@ function App() {
             justifyContent: "center",
             alignItems: "center",
             marginBottom: "10px",
+            fontFamily: "'Rock Salt', cursive",
           }}
         >
           <img
@@ -109,35 +136,44 @@ function App() {
             Spotify Album Finder
           </h1>
         </div>
-        <p style={{ color: "#b3b3b3", fontSize: "18px" }}>
-          Search your favorite artists and explore their albums instantly 🎶
-        </p>
-
-        {/* Toggle Music Button */}
-        <Button
-          onClick={toggleMusic}
-          style={{
-            marginTop: "15px",
-            backgroundColor: "#1DB954",
-            border: "none",
-            fontWeight: "bold",
-          }}
-        >
-          {isPlaying ? "Pause Music 🔇" : "Play Music 🎵"}
-        </Button>
+        <p
+  style={{
+    color: "#b3b3b3",
+    fontSize: "18px",
+    fontFamily: "'Lobster', cursive",
+  }}
+>
+  Find. Play. Groove.
+</p>
       </Container>
+
+      {/* Shimeji Character (GIF) */}
+      <img
+  src="/shimeji.png"
+  alt="Shimeji Character"
+  style={{
+    position: "absolute",
+    middle: "500px",
+    right: "400px",
+    width: "150px",
+    height: "150px",
+    marginLeft: "80px",
+    marginTop: "-40px",
+    zIndex: 500,
+    pointerEvents: "none", // so it doesn't block clicks
+  }}
+/>
+
 
       {/* Search Section */}
       <Container className="search-box">
         <InputGroup className="justify-content-center">
           <FormControl
-            placeholder="Type an artist name..."
+            placeholder="Who’s on your playlist today?"
             type="input"
             aria-label="Search for an Artist"
             onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                search();
-              }
+              if (event.key === "Enter") search();
             }}
             onChange={(event) => setSearchInput(event.target.value)}
             style={{
@@ -149,7 +185,10 @@ function App() {
               border: "2px solid #1DB954",
             }}
           />
-          <Button onClick={search} style={{ backgroundColor: "#1DB954", border: "none" }}>
+          <Button
+            onClick={search}
+            style={{ backgroundColor: "#1DB954", border: "none" }}
+          >
             Search
           </Button>
         </InputGroup>
@@ -157,14 +196,30 @@ function App() {
 
       {/* Results Section */}
       <Container>
-        <h2 style={{ color: "#1DB954", marginTop: "30px", marginBottom: "15px" }}>
-          {albums.length > 0 ? "Albums Found" : "Start Your Search 🎶"}
-        </h2>
-        <p style={{ color: "#b3b3b3", marginBottom: "25px" }}>
-          {albums.length > 0
-            ? "Click on an album to listen on Spotify."
-            : "Enter an artist name above and press Enter or click Search."}
-        </p>
+        <h2
+  style={{
+    color: "#1DB954",
+    marginTop: "40px",
+    marginBottom: "15px",
+    fontFamily: "'Rock Salt', cursive", // rock-style heading
+    fontSize: "2rem",
+  }}
+>
+  {albums.length > 0 ? "Albums Found" : "Start Your Search 🎶"}
+</h2>
+<p
+  style={{
+    color: "#b3b3b3",
+    marginBottom: "50px",
+    fontFamily: "'Lobster', cursive", // aesthetic paragraph font
+    fontSize: "1.1rem",
+  }}
+>
+  {albums.length > 0
+    ? "Click on an album to listen on Spotify."
+    : "Every album has a story. Discover it."}
+</p>
+
 
         <Row
           style={{
